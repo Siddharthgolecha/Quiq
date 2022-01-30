@@ -1,0 +1,71 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>QuiqSafe</title>
+    <link rel="stylesheet" href="../static/CSS/session.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.0/css/all.min.css">
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="chat-display"></div>
+      <div class="chat-type">
+      <div class="name" id="{{name}}"></div>
+      <div class="email" id="{{email}}"></div>
+      
+    <form clssaction="" method="POST">
+
+          <div class="grid-container">
+            <div class="grid-child">
+              <textarea rows="4" cols="50" placeholder="Enter Your Message Here" class="message"></textarea>
+            </div>
+            
+            <div class="grid-child">
+              <button type="submit">Send<i class="fa fa-paper-plane" aria-hidden="true"></i></input>
+            </div>
+            
+          </div>
+    </form>    
+  </div>
+    </div>
+    
+
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script>
+    <script type="text/javascript">
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
+      var user_email = $( 'div.email' ).attr('id');
+      socket.on( 'connect', function() {
+        socket.emit( 'my event', {
+          data: 'User Connected'
+        } )
+        var form = $( 'form' ).on( 'submit', function( e ) {
+          e.preventDefault()
+          let user_name = $( 'div.name' ).attr('id')
+          let user_input = $( 'textarea.message' ).val()
+          socket.emit( 'my event', {
+            user_name : user_name,
+            user_email: user_email,
+            message : user_input,
+          } )
+          $( 'input.message' ).val( '' ).focus()
+        } )
+      } )
+      socket.on( 'my response', function( msg ) {
+        console.log( msg )
+        if( typeof msg.user_name !== 'undefined' ) {
+          if (msg.user_email==user_email)
+          {
+            $( 'div.chat-display' ).append( '<div class="msg dummy-i"><p class="msg-sender">'+msg.user_name+':</p><p>'+msg.message+'</p></div>' )
+          }
+          else{
+            $( 'div.chat-display' ).append( '<div class="msg dummy-u"><p class="msg-sender">'+msg.user_name+':</p><p>'+msg.message+'</p></div>' )
+          }
+        }
+      })
+    </script>
+
+  </body>
+  </html>
